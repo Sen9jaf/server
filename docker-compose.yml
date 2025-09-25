@@ -1,0 +1,42 @@
+services:
+  web:
+    build: .
+    container_name: my-python-app
+    ports:
+      - "5000:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_started
+    environment:
+      - DATABASE_URL=postgresql://user:pass@db:5432/mydb
+    volumes:
+      - .:/app
+    command: python app.py
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: mydb
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  cache:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+volumes:
+  pgdata:
+

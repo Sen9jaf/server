@@ -1,0 +1,4 @@
+flask
+pytest
+psycopg2-binary   # якщо потрібен доступ до Postgres
+redis
